@@ -1,7 +1,9 @@
 import tkinter as tk
+from time import strftime, gmtime
 
 BT_FONT = ("Calibri", "14")
 LBL_FONT = ("Cambria", "16")
+TIMER = 11
 
 WHITE = "white"
 RED = "firebrick"
@@ -12,13 +14,26 @@ GREEN = "forestgreen"
 
 root = tk.Tk()  # création du node racine // démarre la console TCL
 sv_entry = tk.StringVar()
-sv_time = tk.StringVar(value="2:30")
+sv_time = tk.StringVar()
 sv_word = tk.StringVar(value="MAISON") # le mot à deviner
 sv_tip = tk.StringVar(value="M     ")  # l’affichage du mot dans le canvas
 sv_message = tk.StringVar(value="Message dynamique")
+iv_timer = tk.IntVar(value=TIMER)
+sv_job = tk.StringVar()
 
 def do_verif():
-    draw_bottom()  # TODO à faire plus tard !
+    pass  # TODO à faire plus tard !
+
+
+def clock():
+    time = iv_timer.get() -1
+    sv_time.set(strftime("%M:%S",gmtime(time)))
+    iv_timer.set(time)
+
+    if time > 0:
+        sv_job.set(lbl_time.after(1000,clock))
+    else:
+        draw_bottom() # TODO on a encore des trucs à faire ici
 
 
 def draw_bottom():
@@ -62,6 +77,7 @@ for line in range(10):
 for i in range(6):
     canvas.create_text((25+i*50, 25),text=sv_tip.get()[i])
 canvas.pack()
+clock()
 
 root.title("Motus")
 # root.geometry("300x300")
