@@ -6,7 +6,7 @@ from tkinter import messagebox
 BT_FONT = ("Calibri", "14")
 LBL_FONT = ("Cambria", "16")
 
-TIMER = 11
+TIMER = 181
 
 WHITE = "white"
 RED = "firebrick"
@@ -41,16 +41,18 @@ def do_verif():
             elif letter in word and occur.count(letter) <= word.count(letter):  # and letter != word[i]:
                 draw_colors(i, YELLOW)
 
-            draw_text(i, attempt)  # Dessiner le texte
+            draw_text(i, letter)  # Dessiner le texte
         end_game()  # Vérifier si on a gagné
 
 
 def draw_colors(pos_x: int, color: str):
-    pass
+    pos_y = iv_tries.get()  # position sur l’axe Y
+    canvas.create_rectangle(pos_x * 50, pos_y * 50, (pos_x + 1) * 50, (pos_y + 1) * 50, fill=color, tag="color")
 
 
 def draw_text(pos_x: int, text: str):
-    pass
+    pos_y = iv_tries.get()
+    canvas.create_text((25 + pos_x * 50, pos_y * 50 + 25), text=text, tag="text")
 
 
 def end_game():
@@ -59,7 +61,7 @@ def end_game():
 
 def do_reset():
     bottom_frame.pack_forget()
-    canvas.delete("text")
+    canvas.delete("text", "color")
     iv_timer.set(TIMER)
     # TODO choisir un mot
     clock()
@@ -127,6 +129,7 @@ bt_quit.pack(side=tk.RIGHT, expand=tk.YES, fill=tk.X, padx=2, pady=2)
 # =================================== CONFIGURATION ====================================================================
 
 root.title("Motus")
+root.bind("<Return>", lambda event: do_verif())
 # root.geometry("300x300")
 icon = tk.PhotoImage(file="res/ball.png")  # Chargement de l’image dans tkinter
 root.iconphoto(False, icon)
