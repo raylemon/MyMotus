@@ -1,5 +1,6 @@
 import tkinter as tk
 from time import strftime, gmtime
+from tkinter import messagebox
 
 # ======================================== CONSTANTES ==================================================================
 BT_FONT = ("Calibri", "14")
@@ -17,6 +18,51 @@ GREEN = "forestgreen"
 # ========================================== FONCTIONS =================================================================
 def do_verif():
     pass  # TODO à faire plus tard !
+    # Récupérer le contenu de l’entry
+    attempt = sv_entry.get().upper()
+    sv_entry.set("")
+
+    # Vérifier la taille du mot
+    if len(attempt) != 6:
+        messagebox.showerror("Mot Incorrect", f"Votre mot est trop {'court' if len(attempt) < 6 else 'long'} !")
+    # TODO elif de vérification
+    else:
+        occur = []
+        word = sv_word.get()
+        tip = sv_tip.get()
+        # Boucle de comparaison des lettres
+        for i in range(6):  # Vérifier la position de chaque lettre
+            letter = attempt[i]
+            occur.append(letter)
+            if letter == word[i]:  # Vérifier si la lettre est à la bonne place
+                tip = tip[:i] + letter + tip[i + 1:]  # Insertion de lettre dans le mot
+                sv_tip.set(tip)
+                draw_colors(i, GREEN)  # On dessine la couleur
+            elif letter in word and occur.count(letter) <= word.count(letter):  # and letter != word[i]:
+                draw_colors(i, YELLOW)
+
+            draw_text(i, attempt)  # Dessiner le texte
+        end_game()  # Vérifier si on a gagné
+
+
+def draw_colors(pos_x: int, color: str):
+    pass
+
+
+def draw_text(pos_x: int, text: str):
+    pass
+
+
+def end_game():
+    pass
+
+
+def do_reset():
+    bottom_frame.pack_forget()
+    canvas.delete("text")
+    iv_timer.set(TIMER)
+    # TODO choisir un mot
+    clock()
 
 
 def clock():
@@ -27,7 +73,8 @@ def clock():
     if time > 0:
         sv_job.set(lbl_time.after(1000, clock))
     else:
-        pass # TODO on a encore des trucs à faire ici
+        bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
+        pass  # TODO on a encore des trucs à faire ici
 
 
 # ===================================== VARIABLES - CRÉATION DES WIDGETS ===============================================
@@ -41,6 +88,7 @@ sv_tip = tk.StringVar(value="M     ")  # l’affichage du mot dans le canvas
 sv_message = tk.StringVar(value="Message dynamique")
 iv_timer = tk.IntVar(value=TIMER)
 sv_job = tk.StringVar()
+iv_tries = tk.IntVar(value=0)
 
 top_frame = tk.Frame(root, relief=tk.GROOVE, borderwidth=2)
 entry = tk.Entry(top_frame, textvariable=sv_entry)
@@ -48,21 +96,18 @@ bt_validate = tk.Button(top_frame, text="Valider", command=do_verif, font=BT_FON
 lbl_time = tk.Label(top_frame, textvariable=sv_time, font=LBL_FONT, fg=GREEN)
 center_frame = tk.Frame(root, borderwidth=2, relief=tk.GROOVE)
 canvas = tk.Canvas(center_frame, width=300, height=500, bg=WHITE)
+
 for line in range(10):
     for column in range(6):
-        canvas.create_rectangle(column * 50, line * 50, (column + 1) * 50, (line + 1) * 50, fill=BLUE)
+        canvas.create_rectangle(column * 50, line * 50, (column + 1) * 50, (line + 1) * 50, fill=BLUE, tag="grid")
 
 for i in range(6):
-    canvas.create_text((25 + i * 50, 25), text=sv_tip.get()[i])
+    canvas.create_text((25 + i * 50, 25), text=sv_tip.get()[i], tag="text")
 
 bottom_frame = tk.Frame(root, borderwidth=2, relief=tk.GROOVE)
-
 lbl_message = tk.Label(bottom_frame, textvariable=sv_message, font=LBL_FONT)
-
 button_bar = tk.Frame(bottom_frame)
-
-bt_continue = tk.Button(button_bar, text="Continuer", command=None, font=BT_FONT, bg=GREEN)  # TODO affect command
-
+bt_continue = tk.Button(button_bar, text="Continuer", command=do_reset, font=BT_FONT, bg=GREEN)  # TODO affect command
 bt_quit = tk.Button(button_bar, text="Quitter", command=root.quit, font=BT_FONT, bg=RED, fg=WHITE)
 
 # ==================================== PLACEMENT DES WIDGETS ===========================================================
@@ -73,7 +118,7 @@ bt_validate.pack(padx=2, pady=2)
 lbl_time.pack()
 center_frame.pack()
 canvas.pack()
-bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
+
 lbl_message.pack(side=tk.TOP, padx=2, pady=2)
 button_bar.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.X)
 bt_continue.pack(side=tk.LEFT, expand=tk.YES, fill=tk.X, padx=2, pady=2)
