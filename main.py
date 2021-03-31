@@ -7,7 +7,7 @@ from tkinter import messagebox
 BT_FONT = ("Calibri", "14")
 LBL_FONT = ("Cambria", "16")
 
-TIMER = 181
+TIMER = 11
 
 WHITE = "white"
 RED = "firebrick"
@@ -58,7 +58,19 @@ def draw_text(pos_x: int, text: str):
 
 
 def end_game():
-    pass
+    # Incrémente tries
+    iv_tries.set(iv_tries.get() + 1)
+    # Vérif si le mot est trouvé
+    if sv_entry.get().upper() == sv_word.get():
+        sv_message.set("Bravo !!")
+        lbl_time.after_cancel(sv_job.get())  # Arrête le timer
+        bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
+    elif iv_tries.get() > 10:
+        sv_message.set(f"Désolé, le mot à trouver était : {sv_word.get()}")
+        bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
+    else:
+        for i in range(6):
+            draw_text(i, sv_tip.get()[i])
 
 
 def pick_a_word() -> str:
@@ -107,8 +119,9 @@ def clock():
     if time > 0:
         sv_job.set(lbl_time.after(1000, clock))
     else:
-        bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
-        pass  # TODO on a encore des trucs à faire ici
+        # bottom_frame.pack(side=tk.TOP, padx=2, pady=2, expand=tk.YES, fill=tk.BOTH)
+        iv_tries.set(10)
+        end_game()
 
 
 # ===================================== VARIABLES - CRÉATION DES WIDGETS ===============================================
@@ -135,7 +148,7 @@ for line in range(10):
     for column in range(6):
         canvas.create_rectangle(column * 50, line * 50, (column + 1) * 50, (line + 1) * 50, fill=BLUE, tag="grid")
 
-#for i in range(6):
+# for i in range(6):
 #    canvas.create_text((25 + i * 50, 25), text=sv_tip.get()[i], tag="text")
 
 bottom_frame = tk.Frame(root, borderwidth=2, relief=tk.GROOVE)
