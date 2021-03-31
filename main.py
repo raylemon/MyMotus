@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 from time import strftime, gmtime
 from tkinter import messagebox
@@ -25,7 +26,8 @@ def do_verif():
     # Vérifier la taille du mot
     if len(attempt) != 6:
         messagebox.showerror("Mot Incorrect", f"Votre mot est trop {'court' if len(attempt) < 6 else 'long'} !")
-    # TODO elif de vérification
+    elif attempt not in words:  # vérification si dans le dictionnaire
+        messagebox.showerror("Mot Incorrect", "Votre mot n’est pas dans le dictionnaire !")
     else:
         occur = []
         word = sv_word.get()
@@ -59,11 +61,41 @@ def end_game():
     pass
 
 
+def pick_a_word() -> str:
+    return random.choice(list(words)).upper()
+
+
+def load_words() -> set:
+    with open("res/6-letters.txt", "rt", encoding="utf-8") as file:
+        lines = file.readlines()
+
+        # Version simple
+        # w = set()
+        # for lin in lines:
+        #     w.add(lin.strip())
+        # return w
+
+        # Version moins simple
+        # w = set()
+        # w.add(_.strip() for _ in lines)
+        # return w
+
+        # Uber version méga rapide
+        return set(map(lambda x: x.strip(), lines))
+
+
 def do_reset():
     bottom_frame.pack_forget()
     canvas.delete("text", "color")
     iv_timer.set(TIMER)
-    # TODO choisir un mot
+    word = pick_a_word()
+    sv_word.set(word)
+    tip = word[0] + "     "
+    sv_tip.set(tip)
+    iv_tries.set(0)
+    for i in range(6):
+        letter = tip[i]
+        draw_text(i, letter)
     clock()
 
 
@@ -85,12 +117,12 @@ root = tk.Tk()  # création du node racine // démarre la console TCL
 
 sv_entry = tk.StringVar()
 sv_time = tk.StringVar()
-sv_word = tk.StringVar(value="MAISON")  # le mot à deviner
-sv_tip = tk.StringVar(value="M     ")  # l’affichage du mot dans le canvas
-sv_message = tk.StringVar(value="Message dynamique")
+sv_word = tk.StringVar()  # le mot à deviner
+sv_tip = tk.StringVar()  # l’affichage du mot dans le canvas
+sv_message = tk.StringVar()
 iv_timer = tk.IntVar(value=TIMER)
 sv_job = tk.StringVar()
-iv_tries = tk.IntVar(value=0)
+iv_tries = tk.IntVar()
 
 top_frame = tk.Frame(root, relief=tk.GROOVE, borderwidth=2)
 entry = tk.Entry(top_frame, textvariable=sv_entry)
@@ -103,8 +135,8 @@ for line in range(10):
     for column in range(6):
         canvas.create_rectangle(column * 50, line * 50, (column + 1) * 50, (line + 1) * 50, fill=BLUE, tag="grid")
 
-for i in range(6):
-    canvas.create_text((25 + i * 50, 25), text=sv_tip.get()[i], tag="text")
+#for i in range(6):
+#    canvas.create_text((25 + i * 50, 25), text=sv_tip.get()[i], tag="text")
 
 bottom_frame = tk.Frame(root, borderwidth=2, relief=tk.GROOVE)
 lbl_message = tk.Label(bottom_frame, textvariable=sv_message, font=LBL_FONT)
@@ -133,8 +165,9 @@ root.bind("<Return>", lambda event: do_verif())
 # root.geometry("300x300")
 icon = tk.PhotoImage(file="res/ball.png")  # Chargement de l’image dans tkinter
 root.iconphoto(False, icon)
-clock()
 
 # =================================== PROGRAMME PRINCIPAL ==============================================================
 if __name__ == '__main__':
+    words = load_words()
+    do_reset()
     root.mainloop()
